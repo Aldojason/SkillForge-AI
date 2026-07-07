@@ -1,32 +1,61 @@
 import { Link } from "react-router-dom";
+import Button from "../ui/Button";
 
 function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/50 bg-slate-950/70 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+        {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-bold text-cyan-400"
+          className="text-3xl font-bold tracking-tight text-cyan-400"
         >
           SkillForge AI
         </Link>
 
-        <div className="flex items-center gap-6">
+        {/* Navigation */}
+        <nav className="hidden items-center gap-8 md:flex">
+          <a
+            href="#features"
+            className="text-slate-300 transition hover:text-cyan-400"
+          >
+            Features
+          </a>
+
+          <a
+            href="#pricing"
+            className="text-slate-300 transition hover:text-cyan-400"
+          >
+            Pricing
+          </a>
+
+          <a
+            href="#about"
+            className="text-slate-300 transition hover:text-cyan-400"
+          >
+            About
+          </a>
+
+          <a
+            href="#contact"
+            className="text-slate-300 transition hover:text-cyan-400"
+          >
+            Contact
+          </a>
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-4">
           <Link
             to="/login"
-            className="text-slate-300 transition hover:text-cyan-400"
+            className="text-slate-300 transition hover:text-white"
           >
             Login
           </Link>
 
-          <Link
-            to="/register"
-            className="rounded-lg bg-cyan-500 px-4 py-2 font-medium text-white transition hover:bg-cyan-600"
-          >
-            Get Started
-          </Link>
+          <Button>Get Started</Button>
         </div>
-      </nav>
+      </div>
     </header>
   );
 }
