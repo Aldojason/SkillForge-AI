@@ -1,16 +1,20 @@
+import MainLayout from "../components/layout/MainLayout";
+
 function HomePage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950">
-      <div className="text-center">
+    <MainLayout>
+      <section className="flex min-h-[80vh] flex-col items-center justify-center px-6 text-center">
         <h1 className="text-6xl font-bold text-cyan-400">
           SkillForge AI
         </h1>
 
-        <p className="mt-4 text-slate-300 text-xl">
-          Your AI-powered Placement Preparation Platform
+        <p className="mt-6 max-w-2xl text-lg text-slate-300">
+          Your AI-powered placement preparation platform.
+          Track DSA, plan your studies, build resumes,
+          practice interviews, and land your dream software job.
         </p>
-      </div>
-    </main>
+      </section>
+    </MainLayout>
   );
 }
 
