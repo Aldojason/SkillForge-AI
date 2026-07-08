@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 
 const app = express();
 
@@ -15,5 +16,7 @@ app.get("/", (_req, res) => {
     message: "SkillForge AI API Running",
   });
 });
+
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 export default app;
