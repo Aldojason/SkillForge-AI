@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { AuthRequest } from "../../middleware/auth.middleware";
 import { registerSchema } from "./auth.validation";
 import { registerUser } from "./auth.service";
 import { loginSchema } from "./auth.validation";
@@ -53,4 +54,13 @@ export const login = async (req: Request, res: Response) => {
         "Login failed",
     });
   }
+};
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  return res.status(200).json({
+    success: true,
+    user: req.user,
+  });
 };
