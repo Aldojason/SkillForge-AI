@@ -13,9 +13,26 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(USER)
+  
+  dashboard Dashboard?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Dashboard {
+  id              String   @id @default(cuid())
+
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  streak          Int      @default(0)
+  problemsSolved  Int      @default(0)
+  studyHours      Int      @default(0)
+  resumeScore     Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 enum Role {
