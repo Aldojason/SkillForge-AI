@@ -1,47 +1,63 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { RegisterInput } from "./auth.validation";
-
+import prisma from "../../config/prisma";
+import { LoginInput, RegisterInput } from "./auth.validation";
 
 export const registerUser = async (data: RegisterInput) => {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email: data.email,
+    },
+  });
+
+  if (existingUser) {
+    throw new Error("Email already exists");
+  }
+
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
+  const user = await prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+    },
+  });
+
   return {
-    id: crypto.randomUUID(),
-    name: data.name,
-    email: data.email,
-    password: hashedPassword,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    createdAt: user.createdAt,
   };
 };
-export const loginUser = async (
-  email: string,
-  password: string
-) => {
-  // Temporary mock user
-  const mockUser = {
-    id: "123",
-    name: "Jason",
-    email: "jason@gmail.com",
-    password: await bcrypt.hash("password123", 10),
-  };
 
-  if (email !== mockUser.email) {
+export const loginUser = async (data: LoginInput) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: data.email,
+    },
+  });
+
+  if (!user) {
     throw new Error("Invalid email or password");
   }
 
-  const isMatch = await bcrypt.compare(
-    password,
-    mockUser.password
+  const isPasswordCorrect = await bcrypt.compare(
+    data.password,
+    user.password
   );
 
-  if (!isMatch) {
+  if (!isPasswordCorrect) {
     throw new Error("Invalid email or password");
   }
 
   const token = jwt.sign(
     {
-      id: mockUser.id,
-      email: mockUser.email,
+      id: user.id,
+      email: user.email,
+      role: user.role,
     },
     process.env.JWT_SECRET!,
     {
@@ -52,9 +68,10 @@ export const loginUser = async (
   return {
     token,
     user: {
-      id: mockUser.id,
-      name: mockUser.name,
-      email: mockUser.email,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     },
   };
 };

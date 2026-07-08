@@ -4,6 +4,7 @@ import { registerUser } from "./auth.service";
 import { loginSchema } from "./auth.validation";
 import { loginUser } from "./auth.service";
 
+
 export const healthCheck = (_req: Request, res: Response) => {
   res.json({
     module: "Authentication",
@@ -17,34 +18,34 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await registerUser(validatedData);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User registered successfully",
       user,
     });
   } catch (error: any) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
-      message: error.errors?.[0]?.message || "Invalid request",
+      message:
+        error.message ||
+        error.errors?.[0]?.message ||
+        "Registration failed",
     });
   }
 };
 export const login = async (req: Request, res: Response) => {
   try {
-    const data = loginSchema.parse(req.body);
+    const validatedData = loginSchema.parse(req.body);
 
-    const result = await loginUser(
-      data.email,
-      data.password
-    );
+    const result = await loginUser(validatedData);
 
-    res.json({
+    return res.status(200).json({
       success: true,
       message: "Login successful",
       ...result,
     });
   } catch (error: any) {
-    res.status(401).json({
+    return res.status(401).json({
       success: false,
       message:
         error.message ||
