@@ -14,3 +14,18 @@ The Dashboard gives users a quick overview of their placement preparation progre
 - Today's Tasks
 - Recent Activity
 - AI Recommendation
+## Sprint 1
+
+### Completed
+
+- Dashboard layout
+- Sidebar
+- Topbar
+- Placeholder cards
+
+### Pending
+
+- API Integration
+- Charts
+- Tasks
+- AI Recommendation
