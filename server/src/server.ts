@@ -1,10 +1,20 @@
-import dotenv from "dotenv";
-import app from "./app.js";
+import app from "./app";
+import { env } from "./config/env";
+import { prisma } from "./config/db";
 
-dotenv.config();
+async function main() {
+  await prisma.$connect();
+  app.listen(env.port, () => {
+    console.log(`SkillForge API running on http://localhost:${env.port}`);
+  });
+}
 
-const PORT = process.env.PORT || 5000;
+main().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+process.on("SIGINT", async () => {
+  await prisma.$disconnect();
+  process.exit(0);
 });

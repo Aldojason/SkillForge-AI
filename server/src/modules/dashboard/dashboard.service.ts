@@ -1,24 +1,32 @@
-export const getDashboardData = async () => {
+import { prisma } from "../../config/db";
+
+export async function getDashboardData(userId: string) {
+  const [profile, solvedCount, totalProblems, tasksDone, tasksTotal, recentTasks] =
+    await Promise.all([
+      prisma.profile.findUnique({ where: { userId } }),
+      prisma.problemProgress.count({ where: { userId, status: "SOLVED" } }),
+      prisma.problem.count(),
+      prisma.task.count({ where: { userId, status: "DONE" } }),
+      prisma.task.count({ where: { userId } }),
+      prisma.task.findMany({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        take: 5,
+        select: { title: true, status: true, updatedAt: true },
+      }),
+    ]);
+
   return {
-    streak: 12,
-    problemsSolved: 148,
-    studyHours: 84,
-    resumeScore: 91,
-
-    weeklyProgress: [
-      2,4,3,6,7,4,8
-    ],
-
-    todayTasks: [
-      "Solve 2 Array Problems",
-      "Revise Binary Search",
-      "Practice Aptitude 30 mins"
-    ],
-
-    recentActivity: [
-      "Solved Two Sum",
-      "Updated Resume",
-      "Completed Planner Task"
-    ]
+    streak: profile?.currentStreak ?? 0,
+    longestStreak: profile?.longestStreak ?? 0,
+    problemsSolved: solvedCount,
+    totalProblems,
+    tasksDone,
+    tasksTotal,
+    recentActivity: recentTasks.map((t) => ({
+      title: t.title,
+      status: t.status,
+      date: t.updatedAt,
+    })),
   };
-};
+}

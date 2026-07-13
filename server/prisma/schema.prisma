@@ -8,34 +8,241 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  
-  dashboard Dashboard?
+  id                String             @id @default(uuid())
+  email             String             @unique
+  passwordHash      String
+  name              String
+  role              Role               @default(STUDENT)
+  emailVerified     Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  interviewSessions InterviewSession[]
+  notifications     Notification[]
+  payments          Payment[]
+  problemProgress   ProblemProgress[]
+  profile           Profile?
+  refreshTokens     RefreshToken[]
+  resumeReviews     ResumeReview[]
+  resumes           Resume[]
+  studyPlans        StudyPlan[]
+  subscription      Subscription?
+  tasks             Task[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("users")
 }
 
-model Dashboard {
-  id              String   @id @default(cuid())
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("refresh_tokens")
+}
 
-  streak          Int      @default(0)
-  problemsSolved  Int      @default(0)
-  studyHours      Int      @default(0)
-  resumeScore     Int      @default(0)
+model Profile {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  avatarUrl      String?
+  bio            String?
+  skills         String[]  @default([])
+  targetCompany  String?
+  github         String?
+  linkedin       String?
+  portfolio      String?
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime?
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  @@map("profiles")
+}
+
+model Problem {
+  id         String            @id @default(uuid())
+  title      String
+  slug       String            @unique
+  difficulty Difficulty
+  topic      String
+  companies  String[]          @default([])
+  url        String?
+  createdAt  DateTime          @default(now())
+  progress   ProblemProgress[]
+
+  @@map("problems")
+}
+
+model ProblemProgress {
+  id         String        @id @default(uuid())
+  userId     String
+  problemId  String
+  status     ProblemStatus @default(TODO)
+  notes      String?
+  bookmarked Boolean       @default(false)
+  solvedAt   DateTime?
+  updatedAt  DateTime      @updatedAt
+  problem    Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@map("problem_progress")
+}
+
+model StudyPlan {
+  id            String   @id @default(uuid())
+  userId        String
+  title         String
+  targetCompany String?
+  startDate     DateTime
+  endDate       DateTime
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks         Task[]
+
+  @@map("study_plans")
+}
+
+model Task {
+  id               String     @id @default(uuid())
+  userId           String
+  studyPlanId      String?
+  title            String
+  description      String?
+  status           TaskStatus @default(PENDING)
+  dueDate          DateTime?
+  pomodoroSessions Int        @default(0)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  studyPlan        StudyPlan? @relation(fields: [studyPlanId], references: [id])
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Resume {
+  id        String         @id @default(uuid())
+  userId    String
+  title     String
+  template  String         @default("classic")
+  content   Json
+  fileUrl   String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  reviews   ResumeReview[]
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resumes")
+}
+
+model ResumeReview {
+  id            String   @id @default(uuid())
+  userId        String
+  resumeId      String
+  atsScore      Int
+  grammarIssues Json?
+  suggestions   Json?
+  missingSkills String[] @default([])
+  createdAt     DateTime @default(now())
+  resume        Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resume_reviews")
+}
+
+model InterviewSession {
+  id         String   @id @default(uuid())
+  userId     String
+  company    String
+  role       String
+  questions  Json
+  transcript Json?
+  feedback   Json?
+  score      Int?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("interview_sessions")
+}
+
+model Subscription {
+  id                     String             @id @default(uuid())
+  userId                 String             @unique
+  razorpayOrderId        String?
+  razorpaySubscriptionId String?
+  plan                   String             @default("free")
+  status                 SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd       DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  userId            String
+  razorpayPaymentId String?
+  amount            Int
+  currency          String        @default("inr")
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }
 
 enum Role {
-  USER
+  STUDENT
+  PREMIUM
   ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProblemStatus {
+  TODO
+  ATTEMPTED
+  SOLVED
+  REVISE
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+  INCOMPLETE
+}
+
+enum PaymentStatus {
+  SUCCEEDED
+  FAILED
+  PENDING
+  REFUNDED
 }

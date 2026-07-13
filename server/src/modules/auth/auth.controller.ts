@@ -1,66 +1,54 @@
 import { Request, Response } from "express";
-import { AuthRequest } from "../../middleware/auth.middleware";
-import { registerSchema } from "./auth.validation";
-import { registerUser } from "./auth.service";
-import { loginSchema } from "./auth.validation";
-import { loginUser } from "./auth.service";
+import { asyncHandler } from "../../shared/asyncHandler";
+import { ok, fail } from "../../shared/apiResponse";
+import * as authService from "./auth.service";
 
-
-export const healthCheck = (_req: Request, res: Response) => {
-  res.json({
-    module: "Authentication",
-    status: "working",
-  });
+const REFRESH_COOKIE = "sf_refresh_token";
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const validatedData = registerSchema.parse(req.body);
+export const register = asyncHandler(async (req: Request, res: Response) => {
+  const { name, email, password } = req.body;
+  const { accessToken, refreshToken } = await authService.registerUser(name, email, password);
+  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions);
+  return ok(res, { accessToken }, 201);
+});
 
-    const user = await registerUser(validatedData);
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const { accessToken, refreshToken } = await authService.loginUser(email, password);
+  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions);
+  return ok(res, { accessToken });
+});
 
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user,
-    });
-  } catch (error: any) {
-    return res.status(400).json({
-      success: false,
-      message:
-        error.message ||
-        error.errors?.[0]?.message ||
-        "Registration failed",
-    });
-  }
-};
-export const login = async (req: Request, res: Response) => {
-  try {
-    const validatedData = loginSchema.parse(req.body);
+export const refresh = asyncHandler(async (req: Request, res: Response) => {
+  const oldToken = req.cookies?.[REFRESH_COOKIE];
+  if (!oldToken) return fail(res, "No refresh token provided", 401);
 
-    const result = await loginUser(validatedData);
+  const { accessToken, refreshToken } = await authService.rotateRefreshToken(oldToken);
+  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions);
+  return ok(res, { accessToken });
+});
 
-    return res.status(200).json({
-      success: true,
-      message: "Login successful",
-      ...result,
-    });
-  } catch (error: any) {
-    return res.status(401).json({
-      success: false,
-      message:
-        error.message ||
-        error.errors?.[0]?.message ||
-        "Login failed",
-    });
-  }
-};
-export const getCurrentUser = async (
-  req: AuthRequest,
-  res: Response
-) => {
-  return res.status(200).json({
-    success: true,
-    user: req.user,
-  });
-};
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+  const token = req.cookies?.[REFRESH_COOKIE];
+  if (token) await authService.logoutUser(token);
+  res.clearCookie(REFRESH_COOKIE);
+  return ok(res, { message: "Logged out" });
+});
+
+export const me = asyncHandler(async (req: Request, res: Response) => {
+  const user = await authService.getCurrentUser(req.user!.userId);
+  if (!user) return fail(res, "User not found", 404);
+  return ok(res, user);
+});
+
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  await authService.createPasswordResetToken(req.body.email);
+  // Same response regardless of whether the email exists (prevents account enumeration)
+  return ok(res, { message: "If that email is registered, a reset link has been sent." });
+});

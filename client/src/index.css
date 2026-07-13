@@ -1,1 +1,152 @@
-@import "tailwindcss";
+@import "./styles/clay.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+
+body {
+  @apply bg-canvas text-ink font-body antialiased;
+}
+
+h1, h2, h3, .font-display {
+  font-family: "Fraunces", serif;
+}
+
+/* Visible keyboard focus, respecting the claymorphism palette */
+:focus-visible {
+  outline: 2px solid #5B4B8A;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ===== Animation Utilities ===== */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91, 75, 138, 0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(91, 75, 138, 0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out both;
+}
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out both;
+}
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Staggered entry animations for lists */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* ===== Skeleton Loading ===== */
+
+.skeleton {
+  background: linear-gradient(90deg, #DED6C6 25%, #E7E1D6 50%, #DED6C6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.skeleton-text {
+  height: 14px;
+  width: 80%;
+  margin-bottom: 8px;
+}
+
+.skeleton-text-sm {
+  height: 10px;
+  width: 60%;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  height: 80px;
+  border-radius: 28px;
+}
+
+/* ===== Enhanced Scrollbar ===== */
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #C7BEA9;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A99E8C;
+  background-clip: content-box;
+}
+
+/* ===== Mobile sidebar overlay ===== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(58, 52, 43, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.sidebar-mobile {
+  animation: slideInLeft 0.25s ease-out;
+}
+
+/* ===== Page transition ===== */
+.page-enter {
+  animation: fadeInUp 0.35s ease-out both;
+}

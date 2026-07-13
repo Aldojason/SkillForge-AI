@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { getDashboard } from "./dashboard.controller";
-import { verifyToken } from "../../middleware/auth.middleware";
+import { requireAuth } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-router.get("/", verifyToken, getDashboard);
+router.get("/", requireAuth, getDashboard);
 
 export default router;

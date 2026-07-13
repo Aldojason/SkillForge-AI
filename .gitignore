@@ -1,29 +1,10 @@
-# Node.js
 node_modules/
-
-# Build Output
 dist/
 build/
-
-# Environment Files
 .env
 .env.local
-.env.production
-
-# Logs
 *.log
-npm-debug.log*
-
-# OS Files
 .DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Coverage
+client/.vite
+server/prisma/dev.db
 coverage/
-
-# Misc
-*.tmp

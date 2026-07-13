@@ -1,43 +1,35 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { NextFunction, Request, Response } from "express";
+import { verifyAccessToken, AccessTokenPayload } from "../shared/jwt";
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-  };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AccessTokenPayload;
+    }
+  }
 }
 
-export const verifyToken = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const authHeader = req.headers.authorization;
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const header = req.headers.authorization;
+  const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Access denied. No token provided.",
-    });
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Missing access token" });
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as AuthRequest["user"];
-
-    req.user = decoded;
-
+    req.user = verifyAccessToken(token);
     next();
   } catch {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token.",
-    });
+    return res.status(401).json({ success: false, message: "Invalid or expired access token" });
   }
-};
+}
+
+export function requireRole(...roles: Array<"STUDENT" | "PREMIUM" | "ADMIN">) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: "Insufficient permissions" });
+    }
+    next();
+  };
+}

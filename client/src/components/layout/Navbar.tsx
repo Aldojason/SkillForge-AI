@@ -1,63 +1,87 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import Button from "../ui/Button";
+import { LogOut, Menu, X } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { ClayBadge } from "../ui/ClayBadge";
+import { Sidebar } from "./Sidebar";
 
-function Navbar() {
+export function Navbar() {
+  const { user, logout } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/50 bg-slate-950/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="text-3xl font-bold tracking-tight text-cyan-400"
-        >
-          SkillForge AI
-        </Link>
-
-        {/* Navigation */}
-        <nav className="hidden items-center gap-8 md:flex">
-          <a
-            href="#features"
-            className="text-slate-300 transition hover:text-cyan-400"
-          >
-            Features
-          </a>
-
-          <a
-            href="#pricing"
-            className="text-slate-300 transition hover:text-cyan-400"
-          >
-            Pricing
-          </a>
-
-          <a
-            href="#about"
-            className="text-slate-300 transition hover:text-cyan-400"
-          >
-            About
-          </a>
-
-          <a
-            href="#contact"
-            className="text-slate-300 transition hover:text-cyan-400"
-          >
-            Contact
-          </a>
-        </nav>
-
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <Link
-            to="/login"
-            className="text-slate-300 transition hover:text-white"
-          >
-            Login
+    <>
+      <header className="sticky top-0 z-30 bg-canvas/90 backdrop-blur-md border-b border-surfaceDeep/50 px-4 md:px-6 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {user && (
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="md:hidden clay-btn rounded-clay-sm p-2"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+          )}
+          <Link to="/" className="font-display text-xl font-semibold text-primary hover:text-primary-dark transition-colors">
+            SkillForge <span className="text-ember">AI</span>
           </Link>
-
-          <Button>Get Started</Button>
         </div>
-      </div>
-    </header>
+
+        {user ? (
+          <div className="flex items-center gap-3">
+            <ClayBadge tone={user.role === "PREMIUM" ? "ember" : user.role === "ADMIN" ? "violet" : "sprout"}>
+              {user.role}
+            </ClayBadge>
+            {user.profile && (
+              <div className="clay-coin w-9 h-9 rounded-full grid place-items-center text-xs font-mono font-bold text-white" title={`${user.profile.currentStreak} day streak`}>
+                {user.profile.currentStreak}
+              </div>
+            )}
+            <span className="hidden sm:inline text-sm font-medium truncate max-w-[120px]">{user.name}</span>
+            <button
+              onClick={() => logout()}
+              className="clay-btn rounded-full p-2.5 hover:text-ember"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Link to="/login" className="clay-btn rounded-clay-sm px-4 py-2 text-sm font-semibold">
+              Log in
+            </Link>
+            <Link to="/register" className="clay-btn-primary rounded-clay-sm px-4 py-2 text-sm font-semibold text-[#F2ECDF]">
+              Get started
+            </Link>
+          </div>
+        )}
+      </header>
+
+      {/* Mobile sidebar drawer */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />
+          <div className="sidebar-mobile fixed top-0 left-0 h-full w-72 bg-canvas z-50 shadow-2xl overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-surfaceDeep/50">
+              <span className="font-display text-lg font-semibold text-primary">
+                SkillForge <span className="text-ember">AI</span>
+              </span>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="clay-btn rounded-full p-2"
+                aria-label="Close menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-3">
+              <Sidebar mobile onNavigate={() => setMobileOpen(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
-
-export default Navbar;

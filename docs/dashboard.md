@@ -29,3 +29,18 @@ The Dashboard gives users a quick overview of their placement preparation progre
 - Charts
 - Tasks
 - AI Recommendation
+
+## Sprint 2
+
+### Completed
+
+- Reusable StatCard component
+- Dashboard welcome section
+- Statistics cards
+- Placeholder panels for charts, tasks, activity, and AI recommendations
+
+### Pending
+
+- Real charts
+- API integration
+- Live dashboard data

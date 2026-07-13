@@ -1,0 +1,123 @@
+/* ------------------------------------------------------------------
+   Claymorphism system for SkillForge AI
+   Signature: soft, molded surfaces — a light highlight (top-left) and
+   a warm, diffused shadow (bottom-right), as if pressed from clay.
+   ------------------------------------------------------------------ */
+
+:root {
+  --clay-light: rgba(255, 252, 245, 0.9);
+  --clay-shadow: rgba(90, 74, 56, 0.28);
+  --clay-shadow-soft: rgba(90, 74, 56, 0.14);
+}
+
+/* Raised surface — cards, panels */
+.clay-raised {
+  background: #F2ECDF;
+  box-shadow:
+    8px 8px 20px var(--clay-shadow-soft),
+    -8px -8px 20px var(--clay-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.clay-raised:hover {
+  box-shadow:
+    10px 10px 24px var(--clay-shadow-soft),
+    -10px -10px 24px var(--clay-light);
+}
+
+/* Pressed / inset surface — inputs, progress tracks, active tabs */
+.clay-inset {
+  background: #DED6C6;
+  box-shadow:
+    inset 5px 5px 10px var(--clay-shadow-soft),
+    inset -5px -5px 10px var(--clay-light);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Buttons — raised at rest, pressed on click */
+.clay-btn {
+  background: #F2ECDF;
+  box-shadow:
+    6px 6px 14px var(--clay-shadow-soft),
+    -6px -6px 14px var(--clay-light);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.clay-btn:hover {
+  box-shadow:
+    8px 8px 18px var(--clay-shadow-soft),
+    -8px -8px 18px var(--clay-light);
+  transform: translateY(-1px);
+}
+.clay-btn:active {
+  box-shadow:
+    inset 4px 4px 8px var(--clay-shadow-soft),
+    inset -4px -4px 8px var(--clay-light);
+  transform: translateY(1px);
+}
+
+.clay-btn-primary {
+  background: linear-gradient(145deg, #6857a0, #4c3f77);
+  box-shadow:
+    6px 6px 16px rgba(69, 55, 112, 0.45),
+    -4px -4px 12px rgba(130, 112, 176, 0.35);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.clay-btn-primary:hover {
+  background: linear-gradient(145deg, #7464ad, #564588);
+  box-shadow:
+    8px 8px 20px rgba(69, 55, 112, 0.5),
+    -5px -5px 14px rgba(130, 112, 176, 0.4);
+  transform: translateY(-1px);
+}
+.clay-btn-primary:active {
+  box-shadow:
+    inset 3px 3px 8px rgba(40, 32, 64, 0.5),
+    inset -3px -3px 8px rgba(130, 112, 176, 0.25);
+  transform: translateY(1px);
+}
+
+/* The signature element: a molded "streak coin" */
+.clay-coin {
+  background: radial-gradient(circle at 35% 30%, #D89A6B, #C1793F 65%);
+  box-shadow:
+    6px 6px 14px var(--clay-shadow-soft),
+    -6px -6px 14px var(--clay-light),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.35),
+    inset -2px -2px 6px rgba(90, 55, 20, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clay-coin:hover {
+  transform: scale(1.05);
+}
+
+/* Subtle glow effect for premium / CTA elements */
+.clay-glow {
+  position: relative;
+}
+.clay-glow::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(91,75,138,0.15), rgba(193,121,63,0.15));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.clay-glow:hover::after {
+  opacity: 1;
+}
+
+/* Status indicator dots */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.status-dot-success { background: #6E8B3D; }
+.status-dot-warning { background: #C1793F; }
+.status-dot-error { background: #C0392B; }
+.status-dot-info { background: #5B4B8A; }
